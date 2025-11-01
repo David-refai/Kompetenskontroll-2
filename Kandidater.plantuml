@@ -1,0 +1,107 @@
+@startuml
+
+!theme plain
+top to bottom direction
+skinparam linetype ortho
+
+class App {
+  + App(CandidateService): 
+  + run(): void
+  - parseIntSafe(String, int): int
+  - deleteById(): void
+  - listAll(): void
+  - askInt(String): int
+  - c(String): String
+  - searchMenu(): void
+  - add(): void
+  - chooseField(): Field
+  - chooseTextOp(): TextOp
+  - chooseSort(): Sort
+  - update(): void
+  - chooseNumOp(): NumOp
+  - ask(String): String
+  - askLong(): long
+  - askOpt(String, String): String
+}
+class Candidate {
+  + Candidate(): 
+  + Candidate(String, int, String, int): 
+  - id: long
+  - age: int
+  - yearsOfExperience: int
+  - name: String
+  - dateTimeOfRegister: String
+  - industry: String
+  + toString(): String
+   name: String
+   dateTimeOfRegister: String
+   id: long
+   age: int
+   industry: String
+   yearsOfExperience: int
+}
+class CandidateRepository {
+  + CandidateRepository(String): 
+  + delete(long): void
+  + add(Candidate): void
+  + findAll(): List<Candidate>
+  + update(Candidate): Candidate
+  - computeNextId(): long
+  - initStorage(): void
+  - safe(String): String
+  - copy(Candidate): Candidate
+  - unescape(String): String
+  - validate(Candidate): void
+  - escape(String): String
+  - persist(): void
+  - loadAllFromDisk(): void
+}
+class CandidateService {
+  + CandidateService(CandidateStore): 
+  + findAll(): List<Candidate>
+  + query(QuerySpec): List<Candidate>
+  + delete(long): void
+  + add(Candidate): void
+  + buildPredicate(QuerySpec): Predicate<Candidate>
+  + query(Predicate<Candidate>, Comparator<Candidate>): List<Candidate>
+  + update(Candidate): Candidate
+  - getInd(Candidate, boolean): String
+  - buildComparator(QuerySpec): Comparator<Candidate>
+  - safeLower(String): String
+  - validate(Candidate, boolean): void
+}
+interface CandidateStore << interface >> {
+  + findAll(): List<Candidate>
+  + update(Candidate): Candidate
+  + delete(long): void
+  + add(Candidate): void
+}
+class ErrorHandling {
+  + ErrorHandling(String, int, String): 
+  + ErrorHandling(String, Throwable, int, String, Map<String, String>): 
+  - details: Map<String, String>
+  - code: String
+  - status: int
+  + notFound(String): ErrorHandling
+  + badRequest(String): ErrorHandling
+   details: Map<String, String>
+   code: String
+   status: int
+}
+class Main {
+  + Main(): 
+  + main(String[]): void
+}
+
+App                  -[#595959,dashed]->  Candidate           : "«create»"
+App                 "1" *-[#595959,plain]-> "service\n1" CandidateService    
+CandidateRepository  -[#595959,dashed]->  Candidate           : "«create»"
+CandidateRepository "1" *-[#595959,plain]-> "store\n*" Candidate           
+CandidateRepository  -[#008200,dashed]-^  CandidateStore      
+CandidateRepository  -[#595959,dashed]->  ErrorHandling       : "«create»"
+CandidateService    "1" *-[#595959,plain]-> "store\n1" CandidateStore      
+CandidateService     -[#595959,dashed]->  ErrorHandling       : "«create»"
+Main                 -[#595959,dashed]->  App                 : "«create»"
+Main                 -[#595959,dashed]->  CandidateRepository : "«create»"
+Main                 -[#595959,dashed]->  CandidateService    : "«create»"
+@enduml
