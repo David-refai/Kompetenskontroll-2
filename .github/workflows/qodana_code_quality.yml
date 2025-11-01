@@ -1,8 +1,3 @@
-#-------------------------------------------------------------------------------#
-#        Discover additional configuration options in our documentation         #
-#               https://www.jetbrains.com/help/qodana/github.html               #
-#-------------------------------------------------------------------------------#
-
 name: Qodana
 on:
   workflow_dispatch:
@@ -23,7 +18,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          # Only use PR head SHA if it's a PR, otherwise use default ref
           ref: ${{ github.event.pull_request.head.sha || github.ref }}
           fetch-depth: 0
 
@@ -33,23 +27,13 @@ jobs:
         env:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
         with:
-          # Corrected CLI syntax: use space instead of comma
-          args: --baseline qodana.sarif.json
+          # ✅ Correct CLI syntax for baseline in Qodana 2025.2+
+          args: --baseline=qodana.sarif.json
 
           # Analyze all files (set true to analyze only changed ones)
           pr-mode: false
-
-          # Cache Gradle/Maven dependencies, inspections, etc.
           use-caches: true
-
-          # Post code quality summary as PR comment
           post-pr-comment: true
-
-          # Inline GitHub annotations
           use-annotations: true
-
-          # Upload results (SARIF, logs) to GitHub artifacts
           upload-result: false
-
-          # Apply quick-fixes (requires Ultimate plan)
           push-fixes: none
