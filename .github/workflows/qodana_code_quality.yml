@@ -18,23 +18,38 @@ jobs:
       contents: write
       pull-requests: write
       checks: write
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          # Only use PR head SHA if it's a PR, otherwise use default ref
+          ref: ${{ github.event.pull_request.head.sha || github.ref }}
           fetch-depth: 0
-      - name: 'Qodana Scan'
+
+      - name: Run Qodana Scan
         uses: JetBrains/qodana-action@v2025.2
+        continue-on-error: false
         env:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
         with:
-          args: --baseline,qodana.sarif.json
-          # When pr-mode is set to true, Qodana analyzes only the files that have been changed
+          # Corrected CLI syntax: use space instead of comma
+          args: --baseline qodana.sarif.json
+
+          # Analyze all files (set true to analyze only changed ones)
           pr-mode: false
+
+          # Cache Gradle/Maven dependencies, inspections, etc.
           use-caches: true
+
+          # Post code quality summary as PR comment
           post-pr-comment: true
+
+          # Inline GitHub annotations
           use-annotations: true
-          # Upload Qodana results (SARIF, other artifacts, logs) as an artifact to the job
+
+          # Upload results (SARIF, logs) to GitHub artifacts
           upload-result: false
-          # quick-fixes available in Ultimate and Ultimate Plus plans
-          push-fixes: 'none'
+
+          # Apply quick-fixes (requires Ultimate plan)
+          push-fixes: none
